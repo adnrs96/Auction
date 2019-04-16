@@ -101,12 +101,12 @@ func decodeBiddingRequest(_ context.Context, r *http.Request) (interface{}, erro
 
 func encodeResponse(c context.Context, w http.ResponseWriter, response interface{}) error {
   if response == nil {
-    c = httptransport.SetResponseHeader("status", "204")(c, w)
-    c = httptransport.SetContentType("text/plain")(c, w)
+    w.WriteHeader(http.StatusNoContent)
+    w.Header().Set("Content-Type", "text/plain")
     return nil
   } else {
-    c = httptransport.SetContentType("application/json")(c, w)
-    c = httptransport.SetResponseHeader("status", "200")(c, w)
+    w.Header().Set("Content-Type", "application/json")
+    w.WriteHeader(http.StatusOK)
     return json.NewEncoder(w).Encode(response)
   }
 }
