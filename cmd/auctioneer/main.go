@@ -19,7 +19,7 @@ type AuctionService interface {
   ValidateAdPlacementId(string) bool
   GetBiddingServices(string) []biddingService
   ConductAuction(string) auctionResponse
-  MakeBidRequest(biddingService, string, chan auctionResponse) error
+  MakeBidRequest(biddingService, string, chan auctionResponse)
 }
 
 type auctionService struct {}
@@ -60,7 +60,7 @@ func (auctionService) GetBiddingServices(adPlacementId string) []biddingService 
   return bidding_services
 }
 
-func (auctionService) MakeBidRequest(bs biddingService, adPlacementId string, bids chan auctionResponse) error {
+func (auctionService) MakeBidRequest(bs biddingService, adPlacementId string, bids chan auctionResponse) {
   url := fmt.Sprintf("http://%s:%s/placebid", bs.host, bs.port)
   jsonValue, _ := json.Marshal(auctionRequest{adPlacementId})
   timeout := time.Duration(200 * time.Millisecond)
@@ -70,22 +70,20 @@ func (auctionService) MakeBidRequest(bs biddingService, adPlacementId string, bi
   httpResponse, err := client.Post(url, "application/json", bytes.NewBuffer(jsonValue))
 
   if err != nil {
-    fmt.Println(err)
-    return err
+    bids <- auctionResponse{}
   }
   defer httpResponse.Body.Close()
   if httpResponse.StatusCode == http.StatusOK {
     var auction_response auctionResponse
     body, _ := ioutil.ReadAll(httpResponse.Body)
     if err := json.Unmarshal(body, &auction_response); err != nil {
-      fmt.Println(err)
-      return err
+      bids <- auctionResponse{}
+    } else {
+      bids <- auction_response
     }
-    bids <- auction_response
   } else {
     bids <- auctionResponse{}
   }
-  return nil
 }
 
 func (as auctionService) ConductAuction(adPlacementId string) auctionResponse {
