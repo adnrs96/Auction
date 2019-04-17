@@ -10,6 +10,7 @@ import (
   "bytes"
   "fmt"
   "io/ioutil"
+  "flag"
 
 	"github.com/go-kit/kit/endpoint"
 	httptransport "github.com/go-kit/kit/transport/http"
@@ -132,6 +133,10 @@ func makeAuctionEndpoint(as AuctionService) endpoint.Endpoint {
 }
 
 func main() {
+  var (
+		port = flag.String("port", "8080", "HTTP listen at port")
+	)
+  flag.Parse()
   as := auctionService{}
 
   auctionHandler := httptransport.NewServer(
@@ -141,7 +146,8 @@ func main() {
   )
 
   http.Handle("/auction", auctionHandler)
-	log.Fatal(http.ListenAndServe(":8081", nil))
+  log.Println("Starting bidding service at port " + *port)
+	log.Fatal(http.ListenAndServe(":" + *port, nil))
 }
 
 func decodeAuctionRequest(_ context.Context, r *http.Request) (interface{}, error) {
