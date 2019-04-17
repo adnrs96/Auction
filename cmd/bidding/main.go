@@ -9,6 +9,7 @@ import (
   "context"
 	"encoding/json"
 	"errors"
+  "flag"
 
 	"github.com/go-kit/kit/endpoint"
 	httptransport "github.com/go-kit/kit/transport/http"
@@ -75,6 +76,11 @@ func makeBidEndpoint(bvc BiddingService) endpoint.Endpoint {
 }
 
 func main() {
+  var (
+		port = flag.String("port", "8080", "HTTP listen at port")
+	)
+  flag.Parse()
+
   rand.Seed(time.Now().UnixNano())
   bvc := biddingService{}
 
@@ -85,7 +91,8 @@ func main() {
   )
 
   http.Handle("/placebid", bidHandler)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+  log.Println("Starting bidding service at port " + *port)
+	log.Fatal(http.ListenAndServe(":" + *port, nil))
 }
 
 func decodeBiddingRequest(_ context.Context, r *http.Request) (interface{}, error) {
