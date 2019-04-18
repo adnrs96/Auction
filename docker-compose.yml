@@ -1,0 +1,36 @@
+version: '3'
+
+# Define services
+services:
+
+  # App Service
+  biddingservice:
+    # Configuration for building the docker image for the service
+    build:
+      context: cmd/bidding # Use an image built from the specified dockerfile in the current directory.
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8081"
+    networks: # Networks to join (Services on the same network can communicate with each other using their name)
+      - backend
+    entrypoint: /root/biddingservice -port 8081
+
+  auctioneerservice:
+    # Configuration for building the docker image for the service
+    build:
+      context: cmd/auctioneer # Use an image built from the specified dockerfile in the current directory.
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080" # Forward the exposed port 8080 on the container to port 8080 on the host machine
+    restart: unless-stopped
+    depends_on:
+      - biddingservice # This service depends on redis. Start that first.
+    environment: # Pass environment variables to the service
+      BIDDING_SERVICE_URL: biddingservice:8081
+    networks: # Networks to join (Services on the same network can communicate with each other using their name)
+      - backend
+
+# Networks to be created to facilitate communication between containers
+networks:
+  backend:
