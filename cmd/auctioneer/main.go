@@ -16,6 +16,12 @@ import (
 	httptransport "github.com/go-kit/kit/transport/http"
 )
 
+var (
+  port = flag.String("port", "8080", "HTTP listen at port")
+  biddingHost = flag.String("bidding_service_host", "biddingservice", "Host address for a bidding service.")
+  biddingPort = flag.String("bidding_service_port", "8080", "Port for the bidding service.")
+)
+
 type AuctionService interface {
   ValidateAdPlacementId(string) bool
   GetBiddingServices(string) []biddingService
@@ -47,16 +53,9 @@ func (auctionService) ValidateAdPlacementId(adPlacementId string) bool {
 
 func (auctionService) GetBiddingServices(adPlacementId string) []biddingService {
   // Ideally we would do some sorta DB query here to obtain compatible bidding
-  // services but for now lets just use some static addresses.
+  // services but for now lets just accept bidding service host from CLI.
   bidding_services := []biddingService{
-    {
-      "localhost",
-      "8080",
-    },
-    {
-      "localhost",
-      "8080",
-    },
+    biddingService{*biddingHost, *biddingPort},
   }
   return bidding_services
 }
@@ -133,9 +132,6 @@ func makeAuctionEndpoint(as AuctionService) endpoint.Endpoint {
 }
 
 func main() {
-  var (
-		port = flag.String("port", "8080", "HTTP listen at port")
-	)
   flag.Parse()
   as := auctionService{}
 
