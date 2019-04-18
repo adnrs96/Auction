@@ -62,7 +62,7 @@ func (biddingService) SelectAd(adPlacementId string) string {
   return ad_ids[rand.Intn(10)]
 }
 
-func makeBidEndpoint(bvc BiddingService) endpoint.Endpoint {
+func MakeBidEndpoint(bvc BiddingService) endpoint.Endpoint {
 	return func(_ context.Context, request interface{}) (interface{}, error) {
 		req := request.(biddingRequest)
 		if bvc.ShouldBid(req.AdPlacementId) {
@@ -88,7 +88,7 @@ func main() {
   bvc := biddingService{}
 
   bidHandler := httptransport.NewServer(
-    makeBidEndpoint(bvc),
+    MakeBidEndpoint(bvc),
     decodeBiddingRequest,
 		encodeResponse,
   )

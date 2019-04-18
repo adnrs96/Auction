@@ -120,7 +120,7 @@ func (as auctionService) ConductAuction(adPlacementId string) auctionResponse {
   }
 }
 
-func makeAuctionEndpoint(as AuctionService) endpoint.Endpoint {
+func MakeAuctionEndpoint(as AuctionService) endpoint.Endpoint {
 	return func(_ context.Context, request interface{}) (interface{}, error) {
 		req := request.(auctionRequest)
 		if as.ValidateAdPlacementId(req.AdPlacementId) {
@@ -140,7 +140,7 @@ func main() {
   as := auctionService{}
 
   auctionHandler := httptransport.NewServer(
-    makeAuctionEndpoint(as),
+    MakeAuctionEndpoint(as),
     decodeAuctionRequest,
 		encodeResponse,
   )
