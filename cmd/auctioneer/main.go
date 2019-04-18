@@ -11,6 +11,7 @@ import (
   "fmt"
   "io/ioutil"
   "flag"
+  "os"
 
 	"github.com/go-kit/kit/endpoint"
 	httptransport "github.com/go-kit/kit/transport/http"
@@ -18,8 +19,6 @@ import (
 
 var (
   port = flag.String("port", "8080", "HTTP listen at port")
-  biddingHost = flag.String("bidding_service_host", "biddingservice", "Host address for a bidding service.")
-  biddingPort = flag.String("bidding_service_port", "8080", "Port for the bidding service.")
 )
 
 type AuctionService interface {
@@ -32,8 +31,7 @@ type AuctionService interface {
 type auctionService struct {}
 
 type biddingService struct {
-  host string
-  port string
+  Addr string
 }
 
 type auctionRequest struct {
@@ -54,14 +52,18 @@ func (auctionService) ValidateAdPlacementId(adPlacementId string) bool {
 func (auctionService) GetBiddingServices(adPlacementId string) []biddingService {
   // Ideally we would do some sorta DB query here to obtain compatible bidding
   // services but for now lets just accept bidding service host from CLI.
+  biddingAddress := os.Getenv("BIDDING_SERVICE_URL")
+  if biddingAddress == "" {
+    biddingAddress = "biddingservice:8080"
+  }
   bidding_services := []biddingService{
-    biddingService{*biddingHost, *biddingPort},
+    {biddingAddress},
   }
   return bidding_services
 }
 
 func (auctionService) MakeBidRequest(bs biddingService, adPlacementId string, bids chan auctionResponse) {
-  url := fmt.Sprintf("http://%s:%s/placebid", bs.host, bs.port)
+  url := fmt.Sprintf("http://%s/placebid", bs.Addr)
   jsonValue, _ := json.Marshal(auctionRequest{adPlacementId})
   timeout := time.Duration(200 * time.Millisecond)
   client := http.Client{
