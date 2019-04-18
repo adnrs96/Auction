@@ -19,3 +19,12 @@ but thanks to docker you can avoid that since `docker-compose up` builds these i
 ```
 docker-compose up --build
 ```
+
+
+## Testing
+
+I guess I wasn't able to do it all in the allocated time period. You can run the test I wrote using
+```
+go test
+```
+from inside `Auction/cmd/auctioneer/`. Ideally I would have wanted to make docker run tests but for the timing this would have to do.
