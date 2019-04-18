@@ -54,7 +54,7 @@ func (auctionService) GetBiddingServices(adPlacementId string) []biddingService 
   // services but for now lets just accept bidding service host from CLI.
   biddingAddress := os.Getenv("BIDDING_SERVICE_URL")
   if biddingAddress == "" {
-    biddingAddress = "biddingservice:8080"
+    biddingAddress = "biddingservice"
   }
   bidding_services := []biddingService{
     {biddingAddress},
