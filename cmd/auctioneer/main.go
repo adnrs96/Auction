@@ -73,6 +73,7 @@ func (auctionService) MakeBidRequest(bs biddingService, adPlacementId string, bi
 
   if err != nil {
     bids <- auctionResponse{}
+    return
   }
   defer httpResponse.Body.Close()
   if httpResponse.StatusCode == http.StatusOK {
