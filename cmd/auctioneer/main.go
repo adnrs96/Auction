@@ -69,6 +69,7 @@ func (auctionService) MakeBidRequest(bs biddingService, adPlacementId string, bi
   client := http.Client{
     Timeout: timeout,
   }
+  log.Printf("Making a bid request to %s for a bid for AdPlacementId %s", url, adPlacementId)
   httpResponse, err := client.Post(url, "application/json", bytes.NewBuffer(jsonValue))
 
   if err != nil {

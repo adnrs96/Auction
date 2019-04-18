@@ -66,10 +66,13 @@ func makeBidEndpoint(bvc BiddingService) endpoint.Endpoint {
 	return func(_ context.Context, request interface{}) (interface{}, error) {
 		req := request.(biddingRequest)
 		if bvc.ShouldBid(req.AdPlacementId) {
+      log.Printf("Received a bid request for AdPlacementId %s", req.AdPlacementId)
       adId := bvc.SelectAd(req.AdPlacementId)
       bid_price := bvc.ComputeBid(adId)
+      log.Printf("Placing a bid for AdPlacementId %s with AdId %s and BidPrice %f", req.AdPlacementId, adId, bid_price)
       return biddingResponse{adId, bid_price}, nil
     } else {
+      log.Printf("Not placing a bid for AdPlacementId %s.", req.AdPlacementId)
       return nil, nil
     }
 	}
